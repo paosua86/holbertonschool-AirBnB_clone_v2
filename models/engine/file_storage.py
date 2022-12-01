@@ -12,11 +12,11 @@ class FileStorage:
         """Returns a dictionary of models currently in storage"""
         if not cls:
             return FileStorage.__objects
-        dict = dict()
+        dict_ = dict()
         for object_name, object in FileStorage.__objects.items():
             if isinstance(object, cls):
-                dict[object_name] = object
-        return dict
+                dict_[object_name] = object
+        return dict_
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
