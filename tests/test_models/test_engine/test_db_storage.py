@@ -1,47 +1,59 @@
 #!/usr/bin/python3
-""" Test DBstorage"""
+"""test for databasse storage"""
 import unittest
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.review import Review
+import MySQLdb
+import pep8
+import json
 from models.base_model import BaseModel
+from models.user import User
+from models.amenity import Amenity
+from models.engine.db_storage import DBStorage
 from models import storage
 import os
-from models.state import State
+import MySQLdb
 
 
-class test_dbstorage(unittest.TestCase):
-    """ Class to test the DBstorage method """
+class TestDBStorage(unittest.TestCase):
+    '''Class to test DB Storage'''
 
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db',
-                     "Cannot storage if db is active")
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
     def setUp(self):
-        """ Set up test environment """
-        del_list = []
-        for key in storage.all().keys():
-            del_list.append(key)
-        for key in del_list:
-            storage._DBStorage__session.delete(storage.all()[key])
-            storage._DBStorage__session.commit()
+        """Initialize the setup connection"""
+        if os.getenv("HBNB_TYPE_STORAGE") == "db":
+            self.db = MySQLdb.connect(os.getenv("HBNB_MYSQL_HOST"),
+                                      os.getenv("HBNB_MYSQL_USER"),
+                                      os.getenv("HBNB_MYSQL_PWD"),
+                                      os.getenv("HBNB_MYSQL_DB"))
+            self.cursor = self.db.cursor()
 
-    def test_obj_list_empty(self):
-        """ __objects is initially empty """
-        self.assertEqual(len(storage.all()), 0)
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
+    def tearDown(self):
+        """Close db"""
+        if os.getenv("HBNB_TYPE_STORAGE") == "db":
+            self.db.close()
 
-    def test_reload_from_nonexistent(self):
-        """ Nothing happens if file does not exist """
-        self.assertEqual(storage.reload(), None)
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
+    def test_attributes_DBStorage(self):
+        """Check if has the attributes"""
+        self.assertTrue(hasattr(DBStorage, '_DBStorage__engine'))
+        self.assertTrue(hasattr(DBStorage, '_DBStorage__session'))
+        self.assertTrue(hasattr(DBStorage, 'new'))
+        self.assertTrue(hasattr(DBStorage, 'save'))
+        self.assertTrue(hasattr(DBStorage, 'all'))
+        self.assertTrue(hasattr(DBStorage, 'delete'))
+        self.assertTrue(hasattr(DBStorage, 'reload'))
 
-    def test_type_objects(self):
-        """ Confirm __objects is a dict """
-        self.assertEqual(type(storage.all()), dict)
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
+    def test_pep8_DBStorage(self):
+        """Check PEP8"""
+        style = pep8.StyleGuide(quiet=True)
+        pep = style.check_files(['models/engine/db_storage.py'])
+        self.assertEqual(pep.total_errors, 0, "fix pep8")
 
-    def test_store(self):
-        """ Test if an object is store in the database """
-        new = State(name="Florida")
-        new.save()
-        _id = new.to_dict()['id']
-        self.assertIn(new.__class__.__name__ + '.' + _id,
-                        storage.all(type(new)).keys())
 
-    def test_storage_var_created(self):
-        """ FileStorage object storage created """
-        from models.engine.db_storage import DBStorage
-        self.assertEqual(type(storage), DBStorage)
+if __name__ == "__main__":
+    unittest.main()

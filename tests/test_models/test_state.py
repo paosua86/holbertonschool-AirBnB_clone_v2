@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 """ Test to State class"""
 import models
 from os import getenv
@@ -10,18 +9,19 @@ from sqlalchemy.exc import OperationalError
 
 
 class test_state(test_basemodel):
-    """ """
+    """define state tests for State class"""
 
     def __init__(self, *args, **kwargs):
-        """ """
+        """ Initialisation of State instance"""
         super().__init__(*args, **kwargs)
         self.name = "State"
         self.value = State
+        self.state = State(name="California")
 
     def test_name3(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
+        """ test name in State instance"""
+        self.assertEqual(type(self.state.name), str)
+        self.assertEqual(self.state.name, "California")
 
     @unittest.skipIf(getenv('HBNB_TYPE_STORAGE') != 'db', "not supported")
     def test_without_mandatory_arguments(self):
