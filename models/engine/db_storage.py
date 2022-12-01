@@ -59,8 +59,8 @@ class DBStorage:
     def reload(self):
         ''' Creates all tables from DB '''
         from models.base_model import BaseModel, Base
-       # from models.user import User
-       # from models.place import Place
+        from models.user import User
+        from models.place import Place
         from models.state import State
         from models.city import City
         from models.amenity import Amenity
