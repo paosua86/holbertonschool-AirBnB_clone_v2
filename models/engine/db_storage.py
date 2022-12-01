@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-"""db storage"""
+"""This module defines a class to manage db storage for hbnb clone"""
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import Session
 import os
-
 
 
 class DBStorage:
@@ -17,9 +16,8 @@ class DBStorage:
         pwd = os.getenv('HBNB_MYSQL_PWD')
         host = os.getenv('HBNB_MYSQL_HOST')
         db = os.getenv('HBNB_MYSQL_DB')
-        self.__engine = create_engine("mysql+mysqldb://{:s}:{:s}@{:s}/{:s}".format(
+        self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".format(
                                     user, pwd, host, db), pool_pre_ping=True)
-        #:s takes even special characters
         metadata = MetaData()
         if os.getenv('HBNB_ENV') == 'test':
             metadata.drop_all()
