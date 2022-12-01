@@ -1,42 +1,47 @@
 #!/usr/bin/python3
-"""test db storage"""
+""" Test DBstorage"""
 import unittest
-import pep8
+from models.base_model import BaseModel
+from models import storage
+import os
+from models.state import State
 
 
-class TestDBStorage(unittest.TestCase):
-    '''Tests the DBStorage storage engine'''
+class test_dbstorage(unittest.TestCase):
+    """ Class to test the DBstorage method """
 
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db',
+                     "Cannot storage if db is active")
     def setUp(self):
-        """SetUp env for test"""
-        pass
+        """ Set up test environment """
+        del_list = []
+        for key in storage.all().keys():
+            del_list.append(key)
+        for key in del_list:
+            storage._DBStorage__session.delete(storage.all()[key])
+            storage._DBStorage__session.commit()
 
-    def tearDown(self):
-        """teardown"""
-        pass
+    def test_obj_list_empty(self):
+        """ __objects is initially empty """
+        self.assertEqual(len(storage.all()), 0)
 
-    def test_all(self):
-        """Test class method all()"""
-        pass
+    def test_reload_from_nonexistent(self):
+        """ Nothing happens if file does not exist """
+        self.assertEqual(storage.reload(), None)
 
-    def test_new(self):
-        """Test new method"""
-        pass
+    def test_type_objects(self):
+        """ Confirm __objects is a dict """
+        self.assertEqual(type(storage.all()), dict)
 
-    def test_save(self):
-        """Test save method
-        """
-        pass
+    def test_store(self):
+        """ Test if an object is store in the database """
+        new = State(name="California")
+        new.save()
+        _id = new.to_dict()['id']
+        self.assertIn(new.__class__.__name__ + '.' + _id,
+                        storage.all(type(new)).keys())
 
-    def test_delete(self):
-        """Tests delete
-        """
-        pass
-
-    def test_reload(self):
-        """Tests reload
-        """
-        pass
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_storage_var_created(self):
+        """ FileStorage object storage created """
+        from models.engine.db_storage import DBStorage
+        self.assertEqual(type(storage), DBStorage)
