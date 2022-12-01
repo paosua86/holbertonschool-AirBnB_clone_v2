@@ -30,14 +30,14 @@ class DBStorage:
             for obj in self.__session.query(cls).all():
                 ret_dict[obj.to_dict()['__class__'] + '.' + obj.id] = obj
         else:
-            #from models.user import User
-            #from models.place import Place
+            from models.user import User
+            from models.place import Place
             from models.state import State
             from models.city import City
-            #from models.amenity import Amenity
-            #from models.review import Review
+            from models.amenity import Amenity
+            from models.review import Review
 
-            class_list = [State, City] #User, Place, Review, Amenity]
+            class_list = [State, City, User, Place, Review, Amenity]
             for query_cls in class_list:
                 for obj in self.__session.query(query_cls).all():
                     ret_dict[obj.to_dict()['__class__'] + '.' + obj.id] = obj
@@ -63,8 +63,8 @@ class DBStorage:
        # from models.place import Place
         from models.state import State
         from models.city import City
-        #from models.amenity import Amenity
-        #from models.review import Review
+        from models.amenity import Amenity
+        from models.review import Review
         from sqlalchemy.orm import sessionmaker, scoped_session
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine,
