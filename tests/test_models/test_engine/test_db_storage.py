@@ -35,7 +35,7 @@ class test_dbstorage(unittest.TestCase):
 
     def test_store(self):
         """ Test if an object is store in the database """
-        new = State(name="California")
+        new = State(name="Florida")
         new.save()
         _id = new.to_dict()['id']
         self.assertIn(new.__class__.__name__ + '.' + _id,
