@@ -32,12 +32,12 @@ class FileStorage:
             json.dump(temp, f)
 
     def delete(self, obj=None):
-        """Deletes obj if it exists in __objects"""
-        if obj is not None:
-            for key, value in self.all().items():
-                if value == obj:
-                    del self.all()[key]
-                    break
+        """delete obj from __objects if present
+        """
+        if obj:
+            # format key from obj
+            key = "{}.{}".format(type(obj).__name__, obj.id)
+            del self.__objects[key]
 
     def reload(self):
         """deserializes the JSON file to __objects
