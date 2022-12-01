@@ -10,7 +10,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-import shlex
+
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
@@ -37,7 +37,6 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
-
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -115,32 +114,35 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        list = args.split()
-        if not list:
+        if not args:
             print("** class name missing **")
             return
-
-        elif list[0] not in HBNBCommand.classes:
+        arg_array = args.split(' ')
+        if arg_array[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        clss = list[0]
-        dict = {}
-
-        for element in list[1:]:
-            part_element = element.partition('=')
-            key, value = part_element[0], part_element[-1]
-            value = eval(value)
-            if type(value) is str:
-                value = value.replace('_', ' ')
-            dict[key] = value
-
-        new_instance = HBNBCommand.classes[clss]()
-        new_instance.__dict__.update(dict)
-        storage.new(new_instance)
-
-        storage.save()
+        kwargs = dict()
+        for i in range(1, len(arg_array)):
+            attr_array = arg_array[i].split('=')
+            if "\"" in attr_array[1] and attr_array[1][-1] == "\"":
+                attr_array[1] = attr_array[1][1:-1]
+                if "_" in attr_array[1]:
+                    attr_array[1] = attr_array[1].replace("_", " ")
+            elif "." in attr_array[1]:
+                try:
+                    attr_array[1] = float(attr_array[1])
+                except Exception:
+                    continue
+            else:
+                try:
+                    attr_array[1] = int(attr_array[1])
+                except Exception:
+                    continue
+            kwargs[attr_array[0]] = attr_array[1]
+        new_instance = HBNBCommand.classes[arg_array[0]]()
+        new_instance.__dict__.update(kwargs)
         print(new_instance.id)
-        new_instance.save() #saved in mysql
+        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -203,7 +205,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del (storage.all()[key])
+            del(storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -222,11 +224,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.all.items():
+            for k, v in storage.all().items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 print_list.append(str(v))
 
         print(print_list)
