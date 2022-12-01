@@ -1,79 +1,60 @@
 #!/usr/bin/python3
-"""db storage"""
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import Session
+
+import unittest
+import models
+from models.base_model import BaseModel, Base
+from models.user import User
+from models.review import Review
+from models.amenity import Amenity
+from models.state import State
+from models.place import Place
+from models.city import City
 import os
+from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.orm import sessionmaker
 
 
+@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db',
+                 "only testing db")
+class test_DBStorage(unittest.TestCase):
 
-class DBStorage:
-    ''' This class manages all database storage for HBnB '''
-    __engine = None
-    __session = None
+    def test_State(self):
+        """ Check if loads name"""
+        state = State(name="Carl")
+        if state.id in models.storage.all():
+            self.assertTrue(state.name, "Carl")
 
-    def __init__(self):
-        ''' Init method for dbstorage'''
-        user = os.getenv('HBNB_MYSQL_USER')
-        pwd = os.getenv('HBNB_MYSQL_PWD')
-        host = os.getenv('HBNB_MYSQL_HOST')
-        db = os.getenv('HBNB_MYSQL_DB')
-        self.__engine = create_engine("mysql+mysqldb://{:s}:{:s}@{:s}/{:s}".format(
-                                    user, pwd, host, db), pool_pre_ping=True)
-        #:s takes even special characters
-        metadata = MetaData()
-        if os.getenv('HBNB_ENV') == 'test':
-            metadata.drop_all()
+    def test_City(self):
+        """ Check if loads name """
+        city = City(name="Bogota")
+        if city.id in models.storage.all():
+            self.assertTrue(city.name, "Bogota")
 
-    def all(self, cls=None):
-        ''' Returns all cls in DB, or all objects in DB, as a dict'''
-        self.__session = Session(self.__engine)
-        ret_dict = dict()
-        if cls:
-            for obj in self.__session.query(cls).all():
-                ret_dict[obj.to_dict()['__class__'] + '.' + obj.id] = obj
-        else:
-            from models.user import User
-            from models.place import Place
-            from models.state import State
-            from models.city import City
-            from models.amenity import Amenity
-            from models.review import Review
+    def test_Place(self):
+        """ Checks if leads name and numer """
+        place = Place(name="Hotel", number_rooms=4)
+        if place.id in models.storage.all():
+            self.assertTrue(place.number_rooms, 4)
+            self.assertTrue(place.name, "Hotel")
 
-            class_list = [State, City, User, Place, Review, Amenity]
-            for query_cls in class_list:
-                for obj in self.__session.query(query_cls).all():
-                    ret_dict[obj.to_dict()['__class__'] + '.' + obj.id] = obj
-        return ret_dict
+    def test_User(self):
+        """ Check if loads name """
+        user = User(name="926")
+        if user.id in models.storage.all():
+            self.assertTrue(user.name, "926")
 
-    def new(self, obj):
-        ''' Add obj to session '''
-        self.__session.add(obj)
+    def test_Amenity(self):
+        """ Check if loads name """
+        amenity = Amenity(name="Wifi")
+        if amenity.id in models.storage.all():
+            self.assertTrue(amenity.name, "Wifi")
 
-    def save(self):
-        ''' Commit new previous additions '''
-        self.__session.commit()
+    def test_Review(self):
+        """ Tests if leads text """
+        review = Review(text="Very_good_place")
+        if review.id in models.storage.all():
+            self.assertTrue(review.text, "Very_good_place")
 
-    def delete(self, obj=None):
-        ''' Deletes obj if exists '''
-        if obj:
-            self.__session.delete(obj)
-
-    def reload(self):
-        ''' Creates all tables from DB '''
-        from models.base_model import BaseModel, Base
-        from models.user import User
-        from models.place import Place
-        from models.state import State
-        from models.city import City
-        from models.amenity import Amenity
-        from models.review import Review
-        from sqlalchemy.orm import sessionmaker, scoped_session
-        Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
-        Session = scoped_session(session_factory)
-        self.__session = Session()
-
-    def close(self):
-        '''Required to update HBNB using Flask'''
-        Session.close(self.__session)
+    def teardown(self):
+        self.session.close()
+        self.session.rollback()
