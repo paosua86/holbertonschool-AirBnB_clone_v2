@@ -62,7 +62,7 @@ class TestBaseModel(unittest.TestCase):
         """Test that object is correctly created"""
         inst = BaseModel()
         self.assertIs(type(inst), BaseModel)
-        inst.name = "Holberton"
+        inst.name = "hello"
         inst.number = 89
         attrs_types = {
             "id": str,
