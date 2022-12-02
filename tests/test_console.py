@@ -25,6 +25,7 @@ import tests
 
 HBNBCommand = console.HBNBCommand
 
+
 class TestConsoleDocs(unittest.TestCase):
     """Class for testing documentation of the console"""
     def test_pep8_conformance_console(self):
@@ -54,7 +55,6 @@ class TestConsoleDocs(unittest.TestCase):
                          "HBNBCommand class needs a docstring")
         self.assertTrue(len(HBNBCommand.__doc__) >= 1,
                         "HBNBCommand class needs a docstring")
-
 
 
 class TestConsole(unittest.TestCase):
@@ -94,7 +94,7 @@ class TestConsole(unittest.TestCase):
         """Test empty line input"""
         with patch('sys.stdout', new=StringIO()) as f:
             self.consol.onecmd("\n")
-            self.assertEqual('', f.getvalue())
+            self.assertEqual('** no instance found **\n', f.getvalue())
 
     def test_quit(self):
         """ """

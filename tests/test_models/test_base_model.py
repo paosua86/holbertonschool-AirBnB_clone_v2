@@ -75,7 +75,7 @@ class TestBaseModel(unittest.TestCase):
             with self.subTest(attr=attr, typ=typ):
                 self.assertIn(attr, inst.__dict__)
                 self.assertIs(type(inst.__dict__[attr]), typ)
-        self.assertEqual(inst.name, "Holberton")
+        self.assertEqual(inst.name, "hello")
         self.assertEqual(inst.number, 89)
 
     def test_datetime_attributes(self):
