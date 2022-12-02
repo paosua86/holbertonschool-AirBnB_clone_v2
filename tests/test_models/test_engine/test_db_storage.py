@@ -1,59 +1,57 @@
 #!/usr/bin/python3
-"""test for databasse storage"""
+""" Module for testing DB storage"""
+import os
 import unittest
-from models.place import Place
+from models.engine.db_storage import DBStorage, Base
+from models.engine.file_storage import FileStorage
+from models.user import User
 from models.state import State
 from models.city import City
-from models.review import Review
-import MySQLdb
-import pep8
-import json
-from models.base_model import BaseModel
-from models.user import User
 from models.amenity import Amenity
-from models.engine.db_storage import DBStorage
+from models.place import Place
+from models.review import Review
+from sqlalchemy.orm import sessionmaker
 from models import storage
-import os
-import MySQLdb
 
 
 class TestDBStorage(unittest.TestCase):
-    '''Class to test DB Storage'''
+    def setUp(self) -> None:
+        if type(storage) == DBStorage:
+            self.storage = DBStorage()
+            Base.metadata.create_all(self.storage._DBStorage__engine)
+            Session = sessionmaker(bind=self.storage._DBStorage__engine)
+            self.storage._DBStorage__session = Session()
+            self.user = User(email='none@gmail.com', password='password')
+            self.storage._DBStorage__session.add(self.user)
+            self.state = State(name='California')
+            self.storage._DBStorage__session.add(self.state)
+            self.city = City(name='San Francisco', state_id=self.state.id)
+            self.storage._DBStorage__session.add(self.city)
+            self.place = Place(user_id=self.user.id,
+                               city_id=self.city.id, name='Church')
+            self.storage._DBStorage__session.add(self.place)
+            self.review = Review(user_id=self.user.id,
+                                 palce_id=self.place.id, text='Very good')
+            self.storage._DBStorage__session.add(self.review)
+            self.amenity = Amenity(name='TV')
+            self.storage._DBStorage__session.add(self.amenity)
+            self.storage._DBStorage__session.commit()
 
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
-    def setUp(self):
-        """Initialize the setup connection"""
-        if os.getenv("HBNB_TYPE_STORAGE") == "db":
-            self.db = MySQLdb.connect(os.getenv("HBNB_MYSQL_HOST"),
-                                      os.getenv("HBNB_MYSQL_USER"),
-                                      os.getenv("HBNB_MYSQL_PWD"),
-                                      os.getenv("HBNB_MYSQL_DB"))
-            self.cursor = self.db.cursor()
+    def tearDown(self) -> None:
+        if type(storage) == DBStorage:
+            self.storage._DBStorage__session.delete(self.user)
+            self.storage._DBStorage__session.delete(self.state)
+            self.storage._DBStorage__session.delete(self.city)
+            self.storage._DBStorage__session.delete(self.place)
+            self.storage._DBStorage__session.delete(self.review)
+            self.storage._DBStorage__session.delete(self.amenity)
+            self.storage._DBStorage__session.commit()
 
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
-    def tearDown(self):
-        """Close db"""
-        if os.getenv("HBNB_TYPE_STORAGE") == "db":
-            self.db.close()
+    @unittest.skipIf(type(storage) == FileStorage, "File Storage ignore")
+    def test_instance_creation(self):
+        self.assertEqual(type(self.storage), DBStorage)
 
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
-    def test_attributes_DBStorage(self):
-        """Check if has the attributes"""
-        self.assertTrue(hasattr(DBStorage, '_DBStorage__engine'))
-        self.assertTrue(hasattr(DBStorage, '_DBStorage__session'))
-        self.assertTrue(hasattr(DBStorage, 'new'))
-        self.assertTrue(hasattr(DBStorage, 'save'))
-        self.assertTrue(hasattr(DBStorage, 'all'))
-        self.assertTrue(hasattr(DBStorage, 'delete'))
-        self.assertTrue(hasattr(DBStorage, 'reload'))
-
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
-    def test_pep8_DBStorage(self):
-        """Check PEP8"""
-        style = pep8.StyleGuide(quiet=True)
-        pep = style.check_files(['models/engine/db_storage.py'])
-        self.assertEqual(pep.total_errors, 0, "fix pep8")
-
-
-if __name__ == "__main__":
-    unittest.main()
+    @unittest.skipIf(type(storage) == FileStorage, "File Storage ignore")
+    def test_all(self):
+        states = self.storage.all(State)
+        self.assertEqual(self.state, states['State'+'.'+self.state.id])
