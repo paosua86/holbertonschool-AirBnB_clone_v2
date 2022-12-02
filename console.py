@@ -10,10 +10,11 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from ast import literal_eval
 
 
 class HBNBCommand(cmd.Cmd):
-    """ Contains the functionality for the HBNB console"""
+    """ Contains the functionality for the console"""
 
     # determines prompt for interactive/non-interactive modes
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
@@ -35,57 +36,57 @@ class HBNBCommand(cmd.Cmd):
         if not sys.__stdin__.isatty():
             print('(hbnb)')
 
-    def precmd(self, line):
-        """Reformat command line for advanced command syntax.
+    def precmd(self, args):
+        """Reformat command args for advanced command syntax.
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
-        _cmd = _cls = _id = _args = ''  # initialize line elements
+        _cmd = _cls = _id = _args = ''  # initialize args elements
 
         # scan for general formating - i.e '.', '(', ')'
-        if not ('.' in line and '(' in line and ')' in line):
-            return line
+        if not ('.' in args and '(' in args and ')' in args):
+            return args
 
-        try:  # parse line left to right
-            pline = line[:]  # parsed line
+        try:  # parse args left to right
+            pargs = args[:]  # parsed args
 
             # isolate <class name>
-            _cls = pline[:pline.find('.')]
+            _cls = pargs[:pargs.find('.')]
 
             # isolate and validate <command>
-            _cmd = pline[pline.find('.') + 1:pline.find('(')]
+            _cmd = pargs[pargs.find('.') + 1:pargs.find('(')]
             if _cmd not in HBNBCommand.dot_cmds:
                 raise Exception
 
             # if parantheses contain arguments, parse them
-            pline = pline[pline.find('(') + 1:pline.find(')')]
-            if pline:
+            pargs = pargs[pargs.find('(') + 1:pargs.find(')')]
+            if pargs:
                 # partition args: (<id>, [<delim>], [<*args>])
-                pline = pline.partition(', ')  # pline convert to tuple
+                pargs = pargs.partition(', ')  # pargs convert to tuple
 
                 # isolate _id, stripping quotes
-                _id = pline[0].replace('\"', '')
+                _id = pargs[0].replace('\"', '')
                 # possible bug here:
                 # empty quotes register as empty _id when replaced
 
                 # if arguments exist beyond _id
-                pline = pline[2].strip()  # pline is now str
-                if pline:
+                pargs = pargs[2].strip()  # pargs is now str
+                if pargs:
                     # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] == '}'\
-                            and type(eval(pline)) is dict:
-                        _args = pline
+                    if pargs[0] == '{' and pargs[-1] == '}'\
+                            and type(eval(pargs)) is dict:
+                        _args = pargs
                     else:
-                        _args = pline.replace(',', '')
+                        _args = pargs.replace(',', '')
                         # _args = _args.replace('\"', '')
-            line = ' '.join([_cmd, _cls, _id, _args])
+            args = ' '.join([_cmd, _cls, _id, _args])
 
         except Exception as mess:
             pass
         finally:
-            return line
+            return args
 
-    def postcmd(self, stop, line):
+    def postcmd(self, stop, args):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
             print('(hbnb) ', end='')
@@ -108,41 +109,65 @@ class HBNBCommand(cmd.Cmd):
         """ Prints the help documentation for EOF """
         print("Exits the program without formatting\n")
 
-    def emptyline(self):
-        """ Overrides the emptyline method of CMD """
+    def emptyargs(self):
+        """ Overrides the emptyargs method of CMD """
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
+        # """ Create an object of any class"""
+        # if not args:
+        #     print("** class name missing **")
+        #     return
+        # arg_array = args.split(' ')
+        # if arg_array[0] not in HBNBCommand.classes:
+        #     print("** class doesn't exist **")
+        #     return
+        # kwargs = dict()
+        # for i in range(1, len(arg_array)):
+        #     attr_array = arg_array[i].split('=')
+        #     if "\"" in attr_array[1] and attr_array[1][-1] == "\"":
+        #         attr_array[1] = attr_array[1][1:-1]
+        #         if "_" in attr_array[1]:
+        #             attr_array[1] = attr_array[1].replace("_", " ")
+        #     elif "." in attr_array[1]:
+        #         try:
+        #             attr_array[1] = float(attr_array[1])
+        #         except Exception:
+        #             continue
+        #     else:
+        #         try:
+        #             attr_array[1] = int(attr_array[1])
+        #         except Exception:
+        #             continue
+        #     kwargs[attr_array[0]] = attr_array[1]
+        # new_instance = HBNBCommand.classes[arg_array[0]]()
+        # new_instance.__dict__.update(kwargs)
+        # print(new_instance.id)
+        # new_instance.save()
+
+
+        """Creates a new instance of BaseModel, saves it
+        Exceptions:
+            SyntaxError: when there is no args given
+            NameError: when there is no object taht has the name
+        """
         if not args:
             print("** class name missing **")
-            return
-        arg_array = args.split(' ')
-        if arg_array[0] not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        kwargs = dict()
-        for i in range(1, len(arg_array)):
-            attr_array = arg_array[i].split('=')
-            if "\"" in attr_array[1] and attr_array[1][-1] == "\"":
-                attr_array[1] = attr_array[1][1:-1]
-                if "_" in attr_array[1]:
-                    attr_array[1] = attr_array[1].replace("_", " ")
-            elif "." in attr_array[1]:
-                try:
-                    attr_array[1] = float(attr_array[1])
-                except Exception:
-                    continue
-            else:
-                try:
-                    attr_array[1] = int(attr_array[1])
-                except Exception:
-                    continue
-            kwargs[attr_array[0]] = attr_array[1]
-        new_instance = HBNBCommand.classes[arg_array[0]]()
-        new_instance.__dict__.update(kwargs)
-        print(new_instance.id)
-        new_instance.save()
+        my_list = args.split(" ")
+        obj = eval("{}()".format(my_list[0]))
+        # FIX evaluate if is str, int or float
+        for item in my_list[1:]:
+            val = item.split('=')
+            item_type = literal_eval(val[1])
+            if type(item_type) is str:
+                val[1] = val[1].replace('_', ' ')
+                var = val[1][1:-1].replace('"', '\\"')
+                setattr(obj, val[0], var)
+            elif type(item_type) is int or type(item_type) is float:
+                setattr(obj, val[0], eval(val[1]))
+        obj.save()
+        print("{}".format(obj.id))
+
 
     def help_create(self):
         """ Help information for the create method """
