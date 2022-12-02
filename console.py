@@ -114,42 +114,9 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        # """ Create an object of any class"""
-        # if not args:
-        #     print("** class name missing **")
-        #     return
-        # arg_array = args.split(' ')
-        # if arg_array[0] not in HBNBCommand.classes:
-        #     print("** class doesn't exist **")
-        #     return
-        # kwargs = dict()
-        # for i in range(1, len(arg_array)):
-        #     attr_array = arg_array[i].split('=')
-        #     if "\"" in attr_array[1] and attr_array[1][-1] == "\"":
-        #         attr_array[1] = attr_array[1][1:-1]
-        #         if "_" in attr_array[1]:
-        #             attr_array[1] = attr_array[1].replace("_", " ")
-        #     elif "." in attr_array[1]:
-        #         try:
-        #             attr_array[1] = float(attr_array[1])
-        #         except Exception:
-        #             continue
-        #     else:
-        #         try:
-        #             attr_array[1] = int(attr_array[1])
-        #         except Exception:
-        #             continue
-        #     kwargs[attr_array[0]] = attr_array[1]
-        # new_instance = HBNBCommand.classes[arg_array[0]]()
-        # new_instance.__dict__.update(kwargs)
-        # print(new_instance.id)
-        # new_instance.save()
-
-
         """Creates a new instance of BaseModel, saves it
         Exceptions:
             SyntaxError: when there is no args given
-            NameError: when there is no object taht has the name
         """
         if not args:
             print("** class name missing **")
@@ -167,7 +134,6 @@ class HBNBCommand(cmd.Cmd):
                 setattr(obj, val[0], eval(val[1]))
         obj.save()
         print("{}".format(obj.id))
-
 
     def help_create(self):
         """ Help information for the create method """
@@ -230,7 +196,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
