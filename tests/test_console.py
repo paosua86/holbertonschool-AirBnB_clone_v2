@@ -97,7 +97,7 @@ class TestConsole(unittest.TestCase):
             self.assertEqual('** no instance found **\n', f.getvalue())
 
     def test_quit(self):
-        """ """
+        """test quit command inpout"""
         with patch('sys.stdout', new=StringIO()) as f:
             self.consol.onecmd("quit")
             self.assertEqual('', f.getvalue())
@@ -141,18 +141,6 @@ class TestConsole(unittest.TestCase):
             self.consol.onecmd('create Place max_guest=5')
             id = f.getvalue()[:-1]
             self.assertEqual(len(id), 36)
-
-    def test_create_v2_params(self):
-        """ """
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd('create User email="ilovetim@google.com"\
-                               password="timisboss"\
-                               first_name="Farrukh"')
-            id = f.getvalue()[:-1]
-            self.assertEqual(len(id), 36)
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("show User {}".format(id))
-            print(f.getvalue())
 
     def test_show(self):
         """ """

@@ -93,8 +93,8 @@ class HBNBCommand(cmd.Cmd):
         return stop
 
     def do_quit(self, command):
-        """ Method to exit the HBNB console"""
-        exit()
+        """Quit command to exit the program"""
+        return True
 
     def help_quit(self):
         """ Prints the help documentation for quit  """
@@ -118,22 +118,28 @@ class HBNBCommand(cmd.Cmd):
         Exceptions:
             SyntaxError: when there is no args given
         """
-        if not args:
+        try:
+            if not args:
+                raise SyntaxError()
+            list = args.split(" ")
+            obj = eval("{}()".format(list[0]))
+            # FIX evaluate if is str, int or float
+            for item in list[1:]:
+                val = item.split('=')
+                item_type = literal_eval(val[1])
+                if type(item_type) is str:
+                    val[1] = val[1].replace('_', ' ')
+                    var = val[1][1:-1].replace('"', '\\"')
+                    setattr(obj, val[0], var)
+                elif type(item_type) is int or type(item_type) is float:
+                    setattr(obj, val[0], eval(val[1]))
+            obj.save()
+            print("{}".format(obj.id))
+
+        except SyntaxError:
             print("** class name missing **")
-        my_list = args.split(" ")
-        obj = eval("{}()".format(my_list[0]))
-        # FIX evaluate if is str, int or float
-        for item in my_list[1:]:
-            val = item.split('=')
-            item_type = literal_eval(val[1])
-            if type(item_type) is str:
-                val[1] = val[1].replace('_', ' ')
-                var = val[1][1:-1].replace('"', '\\"')
-                setattr(obj, val[0], var)
-            elif type(item_type) is int or type(item_type) is float:
-                setattr(obj, val[0], eval(val[1]))
-        obj.save()
-        print("{}".format(obj.id))
+        except NameError:
+            print("** class doesn't exist **")
 
     def help_create(self):
         """ Help information for the create method """
