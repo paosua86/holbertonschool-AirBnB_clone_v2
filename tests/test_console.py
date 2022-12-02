@@ -191,36 +191,6 @@ class TestConsole(unittest.TestCase):
 
     @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db",
                      "can't run if storage is db")
-    def test_update(self):
-        """Test update command inpout"""
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("update")
-            self.assertEqual(
-                "** class name missing **\n", f.getvalue())
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("update sldkfjsl")
-            self.assertEqual(
-                "** class doesn't exist **\n", f.getvalue())
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("update User")
-            self.assertEqual(
-                "** instance id missing **\n", f.getvalue())
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("update User 12345")
-            self.assertEqual(
-                "** no instance found **\n", f.getvalue())
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("create User")
-            id = f.getvalue()[:-1]
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("update User " + id)
-            self.assertEqual(
-                "** attribute name missing **\n", f.getvalue())
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.consol.onecmd("update User " + id + " Name")
-            self.assertEqual(
-                "** value missing **\n", f.getvalue())
-
     def test_z_all(self):
         """Test alternate all command inpout"""
         with patch('sys.stdout', new=StringIO()) as f:
