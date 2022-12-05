@@ -3,6 +3,14 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import Session
 import os
+from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
+from models.base_model import BaseModel, Base
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 
 class DBStorage:
@@ -12,31 +20,25 @@ class DBStorage:
 
     def __init__(self):
         ''' Init method for dbstorage'''
-        user = os.getenv('HBNB_MYSQL_USER')
-        pwd = os.getenv('HBNB_MYSQL_PWD')
-        host = os.getenv('HBNB_MYSQL_HOST')
-        db = os.getenv('HBNB_MYSQL_DB')
+        hbnb_user = os.getenv('HBNB_MYSQL_USER')
+        hbnb_pwd = os.getenv('HBNB_MYSQL_PWD')
+        hbnb_host = os.getenv('HBNB_MYSQL_HOST')
+        hbnb_db = os.getenv('HBNB_MYSQL_DB')
         self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".format(
-                                    user, pwd, host, db), pool_pre_ping=True)
+                                    hbnb_user, hbnb_pwd, hbnb_host, hbnb_db),
+                                    pool_pre_ping=True)
         metadata = MetaData()
         if os.getenv('HBNB_ENV') == 'test':
             metadata.drop_all()
 
     def all(self, cls=None):
-        ''' Returns all cls in DB, or all objects in DB, as a dict'''
+        ''' Returns all cls as a dict'''
         self.__session = Session(self.__engine)
         ret_dict = dict()
         if cls:
             for obj in self.__session.query(cls).all():
                 ret_dict[obj.to_dict()['__class__'] + '.' + obj.id] = obj
         else:
-            from models.user import User
-            from models.place import Place
-            from models.state import State
-            from models.city import City
-            from models.amenity import Amenity
-            from models.review import Review
-
             class_list = [State, City, User, Place, Review, Amenity]
             for query_cls in class_list:
                 for obj in self.__session.query(query_cls).all():
@@ -58,14 +60,6 @@ class DBStorage:
 
     def reload(self):
         ''' Creates all tables from DB '''
-        from models.base_model import BaseModel, Base
-        from models.user import User
-        from models.place import Place
-        from models.state import State
-        from models.city import City
-        from models.amenity import Amenity
-        from models.review import Review
-        from sqlalchemy.orm import sessionmaker, scoped_session
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine,
                                        expire_on_commit=False)
@@ -74,4 +68,4 @@ class DBStorage:
 
     def close(self):
         """close method"""
-        self.__session.remove()
+        Session.close(self.__session)
