@@ -27,7 +27,7 @@ def C_is_fun(text):
 
 @app.route('/python/')
 @app.route('/python/<text>')
-def python_is_cool(text):
+def python_is_cool(text='is cool'):
     """display “Python ”, followed by the value of
     the text variable (replace underscore _ symbols with a space ”"""
     return 'Python ' + text.replace('_', ' ')
