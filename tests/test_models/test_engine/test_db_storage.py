@@ -15,27 +15,37 @@ from models.engine.db_storage import DBStorage
 from models import storage
 import os
 import MySQLdb
+import os
+from unittest import TestCase, mock
 
 
 class TestDBStorage(unittest.TestCase):
     '''Class to test DB Storage'''
 
+    @mock.patch.dict(os.environ, {"HBNB_TYPE_STORAGE": "db"})
+    @mock.patch.dict(os.environ, {"HBNB_MYSQL_HOST": "localhost"})
+    @mock.patch.dict(os.environ, {"HBNB_MYSQL_USER": "hbnb_dev"})
+    @mock.patch.dict(os.environ, {"HBNB_MYSQL_PWD": "hbnb_dev_pwd"})
+
+    @mock.patch.dict(os.environ, {"HBNB_MYSQL_DB": "hbnb_dev_db"})
+
     def setUp(self):
         """Initialize the setup connection"""
-        if os.getenv("HBNB_TYPE_STORAGE") == "db":
-            self.db = MySQLdb.connect(os.getenv("HBNB_MYSQL_HOST"),
-                                      os.getenv("HBNB_MYSQL_USER"),
-                                      os.getenv("HBNB_MYSQL_PWD"),
-                                      os.getenv("HBNB_MYSQL_DB"))
-            self.cursor = self.db.cursor()
+        #if os.getenv("HBNB_TYPE_STORAGE") == "db":
+        self.db = MySQLdb.connect(os.getenv("HBNB_MYSQL_STORAGE"),
+                                  os.getenv("HBNB_MYSQL_HOST"),
+                                  os.getenv("HBNB_MYSQL_USER"),
+                                  os.getenv("HBNB_MYSQL_PWD"),
+                                  os.getenv("HBNB_MYSQL_DB"))
+        self.cursor = self.db.cursor()
 
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
+    #@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
     def tearDown(self):
         """Close db"""
         if os.getenv("HBNB_TYPE_STORAGE") == "db":
             self.db.close()
 
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
+    #@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
     def test_attributes_DBStorage(self):
         """Check if has the attributes"""
         self.assertTrue(hasattr(DBStorage, '_DBStorage__engine'))
@@ -46,7 +56,7 @@ class TestDBStorage(unittest.TestCase):
         self.assertTrue(hasattr(DBStorage, 'delete'))
         self.assertTrue(hasattr(DBStorage, 'reload'))
 
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
+    #@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', "DB")
     def test_pep8_DBStorage(self):
         """Check PEP8"""
         style = pep8.StyleGuide(quiet=True)
