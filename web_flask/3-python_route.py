@@ -25,9 +25,10 @@ def C_is_fun(text):
     return 'C ' + text.replace('_', ' ')
 
 
+@app.route('/python/')
 @app.route('/python/<text>')
 def python_is_cool(text):
-    """ddisplay “Python ”, followed by the value of
+    """display “Python ”, followed by the value of
     the text variable (replace underscore _ symbols with a space ”"""
     return 'Python ' + text.replace('_', ' ')
 
