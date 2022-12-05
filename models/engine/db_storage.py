@@ -73,5 +73,5 @@ class DBStorage:
         self.__session = Session()
 
     def close(self):
-        '''Required to update HBNB using Flask'''
-        Session.close(self.__session)
+        """close method"""
+        self.__session.remove()
