@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Write a script that starts a Flask web application"""
+"""First flask module for HBNB"""
 
 
 from flask import Flask, render_template
@@ -8,19 +8,21 @@ from models.state import State
 app = Flask(__name__)
 
 
-@app.route('/states_list')
-def states_list():
-    """display a HTML page:"""
-    states = storage.all(State)
-    sorted_states = sorted(states.value(), key=lambda state: state.name)
-    return render_template('7-states_list.html', sorted_states=sorted_states)
-
 @app.teardown_appcontext
-def storage_close(self):
-    """After each request you must remove the current SQLAlchemy Session"""
+def teardown_close(self):
+    "Closses sqlalchemy session"
     storage.close()
 
 
+@app.route('/states_list', strict_slashes=False)
+def states_list():
+    """Returns a HTML with states list"""
+    state_dict = storage.all(State)
+    ret_list = []
+    for state in state_dict.values():
+        ret_list.append(state)
+    return render_template('7-states_list.html', st_list=ret_list)
+
+
 if __name__ == "__main__":
-    app.url_map.strict_slashes = False
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0", port="5000")
