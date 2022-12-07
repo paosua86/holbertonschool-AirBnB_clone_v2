@@ -14,8 +14,8 @@ def teardown_app_close(self):
     storage.close()
 
 
-@app.route('/states_list')
-@app.route('/states_list/<id>')
+@app.route('/states')
+@app.route('/states/<id>')
 def states_list(id=None):
     """Returns a HTML with states list"""
     state_list = storage.all(State).values()
