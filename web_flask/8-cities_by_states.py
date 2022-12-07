@@ -9,6 +9,7 @@ from os import getenv
 app = Flask(__name__)
 environ = getenv('HBNB_TYPE_STORAGE')
 
+
 @app.teardown_appcontext
 def teardown_close(self):
     "Closses session"
