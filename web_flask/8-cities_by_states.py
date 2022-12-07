@@ -15,17 +15,11 @@ def teardown_app_close(self):
     storage.close()
 
 
-@app.route('/states_list')
-@app.route('/states_list/<id>')
-def states_list(id=None):
+@app.route('/cities_by_states')
+def cities_by_states():
     """Returns a HTML with states list"""
     state_list = storage.all(State).values()
-    if not id:
-        return render_template('9-states.html', sorted_list=state_list, status=1)
-    for state in state_list:
-        if state.id == id:
-            return render_template('9-states.html', sorted_list=[state], status=2)
-    return render_template('9-states.html', sorted_list=None, status=0)
+    return render_template('8-cities_by_states.html', sorted_list=state_list)
 
 
 if __name__ == "__main__":
