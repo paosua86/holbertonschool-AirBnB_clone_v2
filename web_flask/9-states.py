@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/states')
 def l_states():
-    """ List all states """
+    """List all states"""
     states = storage.all(State).values()
     return render_template('7-states_list.html', states=states)
 
@@ -28,7 +28,7 @@ def state_id(id):
 
 @app.teardown_appcontext
 def close(db):
-    """ Close the current sessions after each request """
+    """Close sessions"""
     storage.close()
 
 
